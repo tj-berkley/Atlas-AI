@@ -1,0 +1,7 @@
+{
+  "name": "Atlas AI Explorer",
+  "description": "An intelligent map exploration and travel planning tool powered by Gemini 2.5 and Google Maps grounding. Discover local gems, get AI-driven recommendations, and plan your next journey with real-time location intelligence.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
