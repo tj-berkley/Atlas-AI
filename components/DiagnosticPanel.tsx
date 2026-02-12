@@ -22,6 +22,11 @@ export default function DiagnosticPanel({ onClose }: DiagnosticPanelProps) {
       message: import.meta.env.VITE_GEMINI_API_KEY ? 'API key is set' : 'API key is missing'
     },
     {
+      name: 'Google Maps API',
+      status: !!import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+      message: import.meta.env.VITE_GOOGLE_MAPS_API_KEY ? 'Maps API key is set' : 'Maps API key missing (optional)'
+    },
+    {
       name: 'Supabase URL',
       status: !!import.meta.env.VITE_SUPABASE_URL,
       message: import.meta.env.VITE_SUPABASE_URL ? 'Supabase URL is set' : 'Supabase URL is missing'
