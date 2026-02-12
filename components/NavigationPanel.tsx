@@ -59,26 +59,6 @@ export default function NavigationPanel({ currentLocation, onRouteSelect }: Navi
   };
 
   const geocodeAddress = async (address: string): Promise<{ lat: number; lng: number } | null> => {
-    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-
-    if (apiKey) {
-      try {
-        const response = await fetch(
-          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`
-        );
-        const data = await response.json();
-        if (data.status === 'OK' && data.results && data.results.length > 0) {
-          const location = data.results[0].geometry.location;
-          return {
-            lat: location.lat,
-            lng: location.lng
-          };
-        }
-      } catch (error) {
-        console.error('Google Maps geocoding error:', error);
-      }
-    }
-
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`
