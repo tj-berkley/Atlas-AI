@@ -53,22 +53,27 @@ class CommunityService {
     location: { lat: number; lng: number },
     radiusKm = 10
   ): Promise<CommunityReport[]> {
-    const { data, error } = await supabase
-      .from('community_reports')
-      .select('*')
-      .eq('status', 'active')
-      .gte('expires_at', new Date().toISOString())
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('community_reports')
+        .select('*')
+        .eq('status', 'active')
+        .gte('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false });
 
-    if (error || !data) {
-      console.error('Error fetching reports:', error);
+      if (error || !data) {
+        console.error('Error fetching reports:', error);
+        return [];
+      }
+
+      return data.filter((report: CommunityReport) => {
+        const distance = this.calculateDistance(location, report.location);
+        return distance <= radiusKm;
+      });
+    } catch (error) {
+      console.error('Exception fetching reports:', error);
       return [];
     }
-
-    return data.filter((report: CommunityReport) => {
-      const distance = this.calculateDistance(location, report.location);
-      return distance <= radiusKm;
-    });
   }
 
   async voteOnReport(reportId: string, voteType: 'upvote' | 'downvote'): Promise<boolean> {

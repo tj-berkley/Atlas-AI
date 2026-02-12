@@ -58,20 +58,28 @@ class NavigationService {
   }
 
   async saveRoute(route: Omit<Route, 'id' | 'created_at'>): Promise<Route | null> {
-    if (!this.userId) return null;
-
-    const { data, error } = await supabase
-      .from('routes')
-      .insert([route])
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error saving route:', error);
+    if (!this.userId) {
+      console.log('No user ID, skipping route save');
       return null;
     }
 
-    return data;
+    try {
+      const { data, error } = await supabase
+        .from('routes')
+        .insert([route])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error saving route:', error);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Exception saving route:', error);
+      return null;
+    }
   }
 
   async getUserRoutes(limit = 20): Promise<Route[]> {

@@ -7,7 +7,8 @@ import { GroundingLinks } from './components/GroundingLink';
 import NavigationPanel from './components/NavigationPanel';
 import CommunityReportPanel from './components/CommunityReportPanel';
 import GoogleDrivePanel from './components/GoogleDrivePanel';
-import { Navigation2, MessageSquare, AlertCircle, Cloud, Menu, X, Volume2, VolumeX } from 'lucide-react';
+import { Navigation2, MessageSquare, AlertCircle, Cloud, Menu, X, Volume2, VolumeX, Settings } from 'lucide-react';
+import DiagnosticPanel from './components/DiagnosticPanel';
 
 type PanelType = 'chat' | 'navigation' | 'reports' | 'drive';
 
@@ -27,6 +28,7 @@ const App = () => {
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [currentRoute, setCurrentRoute] = useState<any>(null);
   const [nearbyReportsCount, setNearbyReportsCount] = useState(0);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const watchIdRef = useRef<number | null>(null);
@@ -87,11 +89,16 @@ const App = () => {
 
   const loadNearbyReportsCount = async () => {
     if (!location) return;
-    const reports = await communityService.getNearbyReports(
-      { lat: location.latitude, lng: location.longitude },
-      5
-    );
-    setNearbyReportsCount(reports.length);
+    try {
+      const reports = await communityService.getNearbyReports(
+        { lat: location.latitude, lng: location.longitude },
+        5
+      );
+      setNearbyReportsCount(reports.length);
+    } catch (error) {
+      console.error('Error loading nearby reports:', error);
+      setNearbyReportsCount(0);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -244,6 +251,14 @@ const App = () => {
 
           <div className="flex items-center gap-2">
             <button
+              onClick={() => setShowDiagnostics(true)}
+              className="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all"
+              title="System Diagnostics"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+
+            <button
               onClick={() => setVoiceEnabled(!voiceEnabled)}
               className={`p-2 rounded-lg transition-all ${
                 voiceEnabled
@@ -363,6 +378,10 @@ const App = () => {
           className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
+      )}
+
+      {showDiagnostics && (
+        <DiagnosticPanel onClose={() => setShowDiagnostics(false)} />
       )}
     </div>
   );

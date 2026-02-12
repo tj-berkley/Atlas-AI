@@ -3,13 +3,30 @@ import { GoogleGenAI } from "@google/genai";
 import { UserLocation } from "../types";
 
 export class GeminiService {
-  private ai: GoogleGenAI;
+  private ai: GoogleGenAI | null = null;
+  private apiKey: string;
 
   constructor() {
-    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+    this.apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+    if (this.apiKey) {
+      try {
+        this.ai = new GoogleGenAI({ apiKey: this.apiKey });
+      } catch (error) {
+        console.error('Failed to initialize Gemini AI:', error);
+      }
+    } else {
+      console.warn('VITE_GEMINI_API_KEY not set. AI features will be disabled.');
+    }
   }
 
   async exploreArea(prompt: string, location?: UserLocation) {
+    if (!this.ai) {
+      return {
+        text: "AI service is not available. Please check your API key configuration.",
+        groundingChunks: []
+      };
+    }
+
     try {
       const response = await this.ai.models.generateContent({
         model: "gemini-2.5-flash",
@@ -33,7 +50,10 @@ export class GeminiService {
       };
     } catch (error) {
       console.error("Gemini API Error:", error);
-      throw error;
+      return {
+        text: "I encountered an error processing your request. Please try again.",
+        groundingChunks: []
+      };
     }
   }
 }
